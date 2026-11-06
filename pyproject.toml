@@ -1,0 +1,46 @@
+[project]
+name = "dockerlint-mcp"
+version = "0.1.0"
+description = "MCP server that statically lints and explains Dockerfiles and docker-compose files for an AI: rule IDs with line numbers and concrete fixes, layer/cache analysis, .dockerignore checks, multi-stage suggestions and fix previews. No Docker daemon needed."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "0xmortuex" }]
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=2.0.0",
+    "pyyaml>=6.0",
+]
+keywords = ["mcp", "docker", "dockerfile", "docker-compose", "lint", "dockerignore", "ai-agent"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Quality Assurance",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7", "anyio", "types-PyYAML"]
+
+[project.urls]
+Homepage = "https://github.com/0xmortuex/dockerlint-mcp"
+
+[project.scripts]
+dockerlint-mcp = "dockerlint_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dockerlint_mcp"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
