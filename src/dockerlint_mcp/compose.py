@@ -14,7 +14,7 @@ from typing import Any
 import yaml
 
 from .errors import UserError, shorten
-from .files import Sandbox
+from .files import Sandbox, real_path
 from .parser import parse_ignore_ids, parse_image, split_lines
 from .rules import RULES, Finding
 from .secrets import has_literal, is_secret_name, scan
@@ -325,7 +325,7 @@ def lint_compose(
         for rel, required in entries:
             if not required or "$" in rel:
                 continue
-            target_path = os.path.realpath(os.path.join(base_dir, rel))
+            target_path = real_path(os.path.join(base_dir, rel))
             eline = loc.find(name, re.escape(rel))
             if not sb.contains(target_path):
                 add("DC2014", eline,

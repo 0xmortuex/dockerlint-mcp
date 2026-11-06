@@ -27,9 +27,18 @@ def _inside(root: str, path: str) -> bool:
         return False
 
 
+def real_path(path: str) -> str:
+    """os.path.realpath, but a path the OS cannot resolve is a UserError. Python 3.10 on Windows raises a bare
+    ValueError ("path too long") where newer versions raise OSError or return the path."""
+    try:
+        return os.path.realpath(path)
+    except (OSError, ValueError) as e:
+        raise UserError(f"{shorten(path)!r} cannot be resolved as a path ({type(e).__name__}: {shorten(str(e))})") from e
+
+
 class Sandbox:
     def __init__(self, root: str) -> None:
-        self.root = os.path.realpath(root)
+        self.root = real_path(root)
         if not os.path.isdir(self.root):
             raise UserError(f"--dir {root!r} is not a directory")
 
@@ -37,7 +46,7 @@ class Sandbox:
         if not path or "\x00" in path:
             raise UserError("path is empty or contains a NUL byte")
         cand = path if os.path.isabs(path) else os.path.join(self.root, path)
-        real = os.path.realpath(cand)
+        real = real_path(cand)
         if not _inside(self.root, real):
             raise UserError(
                 f"{shorten(path)!r} is outside the directory this server is allowed to read ({self.root}). "
@@ -45,8 +54,8 @@ class Sandbox:
             )
         return real
 
-    def contains(self, real_path: str) -> bool:
-        return _inside(self.root, os.path.realpath(real_path))
+    def contains(self, candidate: str) -> bool:
+        return _inside(self.root, real_path(candidate))
 
     def read_text(self, path: str) -> tuple[str, str]:
         real = self.resolve(path)
